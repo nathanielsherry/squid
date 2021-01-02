@@ -18,9 +18,9 @@ from squid.drivers.filesystem import display
 #  show(cairo_surface): called to update the display
 #  get_width(), get_height(): return dimenstions of display
 # 
-# Clock
-#  init(invert): sets persistent options on the clock
-#  draw(width, height): returns a cairo surface of the given dimensions to be drawn
+# Widgets
+#  init(invert, noseconds): sets persistent options on the clock
+#  draw(context, width, height): returns a cairo surface of the given dimensions to be drawn
 # 
 #  
 
@@ -45,7 +45,7 @@ def main(
     hbox = HBox()
     stack.add_child(hbox)
     hbox.add_child(DigitalClock())
-    hbox.add_child(AnalogClock())
+    hbox.add_child(AnalogClock(draw_seconds=not noseconds))
     hbox.add_child(Date())
 
     def load_display_driver(name):
@@ -71,7 +71,7 @@ def main(
     
     #init widget settings
     from squid.widgets import init as widget_init
-    widget_init(invert=invert, noseconds=noseconds)
+    widget_init(invert=invert)
     
     #create the cairo surface
     surface = display.get_surface()
