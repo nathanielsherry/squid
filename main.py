@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import plac, importlib, datetime, pause, cairo, sys, os
-import clock
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(currentdir + "/squid")
