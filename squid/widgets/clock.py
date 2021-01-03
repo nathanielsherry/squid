@@ -12,8 +12,7 @@ class AnalogClock(Component):
         return (size, size)
         
     def draw(self, context, width, height):
-        real_size = min(width, height)
-        size = real_size * 0.9
+        size = min(width, height)
         scaling = size/175
 
         def xy(rotation):
@@ -105,7 +104,7 @@ class AnalogClock(Component):
         #draw clock hands
         draw_hands(datetime.datetime.now())
         
-        return (real_size, real_size)
+        return (size, size)
         
 
 class Text(Component):

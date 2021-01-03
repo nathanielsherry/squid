@@ -35,18 +35,25 @@ def main(
     ):
 
     #import various widgets
-    from squid.widgets import FloodFill
+    from squid.widgets.decor import FloodFill, Notches, Border, NotchedBorder
     from squid.widgets.layout import Stack, HBox
     from squid.widgets.clock import AnalogClock, DigitalClock, Date
 
     #create and compose widgets
-    stack = Stack()
-    stack.add_child(FloodFill(1))
-    hbox = HBox()
-    stack.add_child(hbox)
-    hbox.add_child(DigitalClock())
-    hbox.add_child(AnalogClock(draw_seconds=not noseconds))
-    hbox.add_child(Date())
+    border_width = 2
+    notch_width = 15
+    background = Stack.build(FloodFill(1))
+    digital_clock = DigitalClock()
+    analog_clock = Border(10, 0, AnalogClock(draw_seconds=not noseconds))
+    hbox = HBox.build(digital_clock, analog_clock, Date())
+    
+    stack = Stack.build(
+        background, 
+        Border(border_width, 1,
+        NotchedBorder(border_width, 4, notch_width,
+        Border(border_width, 0, hbox)
+    )))
+
 
     def load_display_driver(name):
         return importlib.import_module("squid.drivers." + name + ".display")
