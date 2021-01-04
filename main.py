@@ -33,6 +33,7 @@ def main(
         noseconds: ('Don\'t show the second hand', 'flag', 'n')=False,
         filename: ('Output filename (if any) where $epoch is epoch timestamp', 'option', 'p')="clock.png",
         rotate: ('Rotate the image 180 degrees', 'flag', 'r')=False,
+        clear: ('Clear the display and exit', 'flag', 'c')=False,
     ):
 
     #import various widgets
@@ -40,24 +41,29 @@ def main(
     from squid.widgets.layout import Stack, HBox
     from squid.widgets.clock import AnalogClock, DigitalClock, Date
 
-    #create and compose widgets
-    border_width = 1
-    notch_width = 10
-    background = Stack.build(FloodFill(2))
-    digital_clock = DigitalClock(width_percent=55)
-    analog_clock = Border(5, 0, AnalogClock(draw_seconds=not noseconds))
-    hbox = HBox.build(digital_clock, analog_clock, Date())
+    if clear:
+        display_stack = FloodFill(1)
+        framecount = 1
+    else:
+        #create and compose widgets
+        border_width = 1
+        notch_width = 10
+        background = FloodFill(2)
+        digital_clock = DigitalClock(width_percent=55)
+        analog_clock = Border(5, 0, AnalogClock(draw_seconds=not noseconds))
+        hbox = HBox.build(digital_clock, analog_clock, Date())
+        
+        display_stack = Stack.build(
+            background, 
+            Border(border_width*2, 0,
+            NotchedBorder(
+                border_width, 
+                4, 
+                notch_width,
+                Border(border_width, 0, hbox),
+                inner_tone = 1         
+        )))
     
-    stack = Stack.build(
-        background, 
-        Border(border_width*2, 0,
-        NotchedBorder(
-            border_width, 
-            4, 
-            notch_width,
-            Border(border_width, 0, hbox),
-            inner_tone = 1         
-    )))
 
 
     def load_display_driver(name):
@@ -76,7 +82,7 @@ def main(
         context.set_line_cap(cairo.LineCap.ROUND)
         context.select_font_face("Futura Lt BT", cairo.FontSlant.NORMAL)
         
-        stack.draw(context, surface.get_width(), surface.get_height())
+        display_stack.draw(context, surface.get_width(), surface.get_height())
         display.show(surface)
 
 
@@ -94,6 +100,7 @@ def main(
     #create the cairo surface
     surface = display.get_surface()
     
+        
     #start time for the interval timer
     nexttime = datetime.datetime.now()
     #If the interval is a whole number of minutes, align the next interval
