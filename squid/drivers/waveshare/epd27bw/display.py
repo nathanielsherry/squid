@@ -5,7 +5,7 @@ epd = None
 def init(**kwargs):
     global epd
     epd = driver.EPD()
-    epd.init()
+    epd.Init_4Gray()
     epd.Clear(0xFF)
 
 def cairo_to_pil(cairo_surface):
@@ -17,9 +17,10 @@ def cairo_to_pil(cairo_surface):
     return pil_image
     
 #accepts a cairo surface matching the width and height of this display and draws it
-def display(surface):
+def show(surface):
     pil_image = cairo_to_pil(surface)
     epd.display_4Gray(epd.getbuffer_4Gray(pil_image))
+    return
 
 def get_surface(): return cairo.ImageSurface(cairo.Format.ARGB32, get_width(), get_height())
 def get_width(): return epd.width

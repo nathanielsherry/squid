@@ -1,5 +1,5 @@
 from squid.widgets.base import Component
-from squid.widgets import set_tone
+from squid.palettes import set_tone
 import math
 
 class Notches(Component):
@@ -58,56 +58,68 @@ class FloodFill(Component):
 # * tone value for filling the border
 # * inner component to draw in the remaining space
 class Border(Component):
-    def __init__(self, size, tone, inner):
+    def __init__(self, size, tone, inner, inner_tone=0):
         self._inner = inner
         self._tone = tone
         self._size = size
+        self._inner_tone = inner_tone
         
     def get_used_size(self, context, width, height): 
          return self._inner.get_used_size(context, width, height)
     
     def draw(self, context, width, height):
         size = min(width, height)
-        bw = size * self._size / 100 / 2
+        bw = size * self._size / 100
         bh = bw
         
         #draw the border
         context.save()
-        self.draw_border(context, width, height)
+        self.border_path(context, width, height)
+        if self._inner_tone != 0:
+            set_tone(context, self._inner_tone)
+            context.fill_preserve()
+        context.set_line_width(bw)
+        set_tone(context, self._tone)
+        context.stroke()
         context.restore()
         
         #draw the inner component
         iw, ih, = width-2*bw, height-2*bw
         context.save()
         context.translate(bw, bh)
-        #context.rectangle(0, 0, iw, ih)
-        #context.clip()
         self._inner.draw(context, iw, ih)
         context.restore()
         
         return (width, height)
         
-    def draw_border(self, context, width, height):
+    def border_path(self, context, width, height):
         size = min(width, height)
-        bw = size * self._size / 100 / 2
-        bh = bw
-        context.rectangle(0, 0, width, bh)
-        context.rectangle(0, 0, bw, height)
-        context.rectangle(0, height-bh, width, bh)
-        context.rectangle(width-bw, 0, bw, height) 
-        set_tone(context, self._tone)
-        context.fill()
+        bw = self._size * size / 100
+        bwmid = bw/2.0
+        
+        w1 = bwmid
+        w2 = width - w1
+        
+        h1 = bwmid
+        h2 = height - h1        
+        
+        context.move_to(w1, h1)
+        context.line_to(w2, h1)
+        context.line_to(w2, h2)
+        context.line_to(w1, h2)
+        context.close_path()
+        
         
 class NotchedBorder(Border):
-    def __init__(self, size, tone, notch_size, inner):
-        super().__init__(size, tone, inner)
+    def __init__(self, size, tone, notch_size, inner, inner_tone=0):
+        super().__init__(size, tone, inner, inner_tone)
         self._notch_size = notch_size
         
-    def draw_border(self, context, width, height):
+    def border_path(self, context, width, height):
         size = min(width, height)
-        bw = size * self._size / 100 / 2.0
+        bw = self._size * size / 100
         bwmid = bw/2.0
-        nw = self._notch_size
+        nw = self._notch_size * size / 100
         
         w1 = bwmid
         w2 = nw
@@ -136,7 +148,4 @@ class NotchedBorder(Border):
         context.line_to(w2, h1)
         
         context.close_path()
-        context.set_line_width(bw)
-        set_tone(context, self._tone)
-        context.stroke()
         
