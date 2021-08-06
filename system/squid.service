@@ -1,0 +1,13 @@
+[Unit]
+Description=Clock Display
+After=network.target
+Wants=network-online.target
+
+[Service]
+Restart=always
+Type=simple
+ExecStart=/opt/squid/run.sh
+ExecStopPost=/opt/squid/clear.sh
+
+[Install]
+WantedBy=multi-user.target

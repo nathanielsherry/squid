@@ -20,7 +20,6 @@ from squid import builder
 #  get_width(), get_height(): return dimenstions of display
 # 
 # Widgets
-#  init(invert, noseconds): sets persistent options on the clock
 #  draw(context, width, height): returns a cairo surface of the given dimensions to be drawn
 # 
 #  
