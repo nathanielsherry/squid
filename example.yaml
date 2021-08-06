@@ -1,10 +1,11 @@
 interval: 1
 framecount: 1
-driver: filesystem
+driver: 
+  name: filesystem
+  filename: frame.png
 invert: false
-filename: frame.png
 rotate: false
-display:
+widgets:
   node: stack
   children:
     - node: flood

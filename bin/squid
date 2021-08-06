@@ -39,17 +39,31 @@ def main(filename):
     return run(**config)
 
 #TODO: driver args under driver in config
-def run(interval=1, framecount=1, driver=None, invert=False, rotate=False, filename=None, display=None, clear=False):
+def run(interval=1, framecount=1, driver=None, invert=False, rotate=False, widgets=None, clear=False):
 
     if clear:
         root_widget = FloodFill(1)
         framecount = 1
     else:      
-        root_widget = builder.build(display)
+        root_widget = builder.build(widgets)
     
 
-    def load_display_driver(name):
-        return importlib.import_module("squid.drivers." + name + ".display")
+    def load_display_driver(driver_data):
+        driver_args = {}
+        driver_name = None
+        if isinstance(driver_data, str):
+            driver_name = driver_data
+            driver_args = {}
+        elif isinstance(driver_data, dict):
+            driver_name = driver_data['name']
+            driver_args = driver_data.copy()
+            del driver_args['name']
+        else:
+            raise Exception("Unrecognised display driver configuration data")
+            
+        driver_module = importlib.import_module("squid.drivers." + driver_name + ".display")
+        driver_module.init(**driver_args)
+        return driver_module
 
     def draw():
         
@@ -73,7 +87,6 @@ def run(interval=1, framecount=1, driver=None, invert=False, rotate=False, filen
     
     #load & init display driver
     display = load_display_driver(driver)
-    display.init(filename=filename)
     
     #init widget settings
     from squid.palettes import init as palette_init
