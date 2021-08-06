@@ -1,5 +1,6 @@
 from squid.widgets.base import Component
 from squid.palettes import set_tone
+from squid.widgets import registry
 import math
 
 class Notches(Component):
@@ -39,7 +40,10 @@ class Notches(Component):
         notch(math.pi)
 
         return (width, self._size)
-    
+
+registry.register('notches', Notches)
+
+
 class FloodFill(Component):
     def __init__(self, tone):
         super().__init__()
@@ -53,12 +57,14 @@ class FloodFill(Component):
         context.paint()
         return (width, height)
         
+registry.register('flood', FloodFill)
+        
 #Accepts
 # * size of border, as percent of minor axis
 # * tone value for filling the border
 # * inner component to draw in the remaining space
 class Border(Component):
-    def __init__(self, size, tone, inner, inner_tone=0):
+    def __init__(self, size=2, tone=4, inner=None, inner_tone=0):
         self._inner = inner
         self._tone = tone
         self._size = size
@@ -109,9 +115,11 @@ class Border(Component):
         context.line_to(w1, h2)
         context.close_path()
         
-        
+registry.register('border', Border)
+
+
 class NotchedBorder(Border):
-    def __init__(self, size, tone, notch_size, inner, inner_tone=0):
+    def __init__(self, size=2, tone=4, notch_size=10, inner=None, inner_tone=0):
         super().__init__(size, tone, inner, inner_tone)
         self._notch_size = notch_size
         
@@ -149,3 +157,4 @@ class NotchedBorder(Border):
         
         context.close_path()
         
+registry.register('notched-border', NotchedBorder)

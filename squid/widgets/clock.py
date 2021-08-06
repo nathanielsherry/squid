@@ -1,19 +1,24 @@
 from squid.widgets.base import Component, Text
 from squid.palettes import set_tone
+from squid.widgets import registry
 import math, datetime
 
 class AnalogClock(Component):
-    def __init__(self, draw_seconds=True):
+    def __init__(self, draw_seconds=True, weight=1):
         super().__init__()
         self._draw_seconds = draw_seconds
-        
+        self._weight = weight
+    
+    @property
+    def weight(self): return self._weight
+    
     def get_used_size(self, context, width, height):
         size = min(width, height)
         return (size, size)
         
     def draw(self, context, width, height):
         size = min(width, height)
-        scaling = size/175
+        scaling = size/175*self.weight
 
         def xy(rotation):
             pos = rotation * 2*math.pi
@@ -115,20 +120,27 @@ class AnalogClock(Component):
         
         return (size, size)
         
+registry.register('analog-clock', AnalogClock)
+
+
 
 class DigitalClock(Text):
-    def __init__(self, width_percent=50):
-        super().__init__(width_percent)
+    def __init__(self, width_pct=50, fmt="%H:%M"):
+        super().__init__(width_pct)
+        self._fmt = fmt
     
     def get_text(self): 
-        return datetime.datetime.now().strftime("%H:%M")
+        return datetime.datetime.now().strftime(self._fmt)
     
-
+registry.register('digital-clock', DigitalClock)
         
         
 class Date(Text):
-    def __init__(self, width_percent=80):
-        super().__init__(width_percent)
+    def __init__(self, width_pct=80, fmt="%A, %-d %B"):
+        super().__init__(width_pct)
+        self._fmt = fmt
     
     def get_text(self): 
-        return datetime.datetime.now().strftime("%A, %-d %B")
+        return datetime.datetime.now().strftime(self._fmt)
+        
+registry.register('date', Date)

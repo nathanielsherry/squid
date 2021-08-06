@@ -1,13 +1,25 @@
+from squid.widgets import registry
+
 class Component:
     def __init__(self):
-        pass
+        self._parent_args = {}
     
     def get_used_size(self, context, width, height): 
          raise Exception("Unimplemented")
     
     def draw(self, context, width, height):
         raise Exception("Unimplemented")
-        
+    
+    @property
+    def parent_args(self): return self.get_parent_args()
+    
+    def get_parent_args(self):
+        return self._parent_args.copy()
+    
+    def set_parent_args(self, args):
+        self._parent_args = args.copy()
+
+
 class Text(Component):
     def __init__(self, width_percent=50):
         super().__init__()
@@ -42,3 +54,5 @@ class Text(Component):
         context.move_to((width - text_width) / 2.0, height - (height - extents.height) / 2.0)
         context.show_text(text)
         return (width, extents.height*1.2)
+
+registry.register('text', Text)

@@ -1,4 +1,5 @@
 from squid.widgets.base import Component
+from squid.widgets import registry
 
 class ChildInfo:
     def __init__(self, child, expand=False):
@@ -8,10 +9,14 @@ class ChildInfo:
   
 
 class Container(Component):
-    def __init__(self):
+    def __init__(self, children=None):
         self._children = []
+        if not children: children = []
+        for child in children:
+            self.add_child(child)
    
-    def add_child(self, child, expand=False):
+    def add_child(self, child):
+        expand = child.parent_args.get('expand', False)
         if not child: raise Exception("Invalid Child {}".format(child))
         self._children.append(ChildInfo(child, expand))
         
@@ -23,10 +28,11 @@ class Container(Component):
             maxx = max(cx, maxx)
             maxy = max(cy, maxy)
         return (maxx, maxy)
+
                        
 class HBox(Container):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, children=None):
+        super().__init__(children)
             
     def draw(self, context, parent_width, parent_height):
         free_space = parent_height
@@ -66,18 +72,13 @@ class HBox(Container):
             context.restore()
             
         return (parent_width, total_y)
-            
-    @staticmethod
-    def build(*args):
-        s = HBox()
-        for arg in args:
-            s.add_child(arg)
-        return s
+
     
+registry.register('hbox', HBox)
         
 class Stack(Container):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, children=None):
+        super().__init__(children)
         
     def draw(self, context, width, height):
         maxx = 0
@@ -92,10 +93,5 @@ class Stack(Container):
             context.restore()
             
         return (maxx, maxy)
-        
-    @staticmethod
-    def build(*args):
-        s = Stack()
-        for arg in args:
-            s.add_child(arg)
-        return s
+    
+registry.register('stack', Stack)

@@ -1,11 +1,12 @@
 #!/usr/bin/python3
-import plac, importlib, datetime, pause, cairo, sys, os, math
+import importlib, datetime, pause, cairo, sys, os, math
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(currentdir + "/squid")
 
 #from drivers.waveshare.epd27bw import display
 from squid.drivers.filesystem import display
+from squid import builder
 
 
 #
@@ -25,46 +26,28 @@ from squid.drivers.filesystem import display
 #  
 
 
-def main(
-        interval: ('Frame interval in seconds', 'option', 'i')=1,
-        framecount: ('Frames to generate, -1 is no limit', 'option', 'f')=-1,
-        driver: ('Driver backend to use, default is filesystem', 'option', 'd')='filesystem',
-        invert: ('Invert light and dark tones', 'flag', 'v')=False,
-        noseconds: ('Don\'t show the second hand', 'flag', 'n')=False,
-        filename: ('Output filename (if any) where $epoch is epoch timestamp', 'option', 'p')="clock.png",
-        rotate: ('Rotate the image 180 degrees', 'flag', 'r')=False,
-        clear: ('Clear the display and exit', 'flag', 'c')=False,
-    ):
+import click
 
+@click.command()
+@click.argument('filename')
+def main(filename):
     #import various widgets
     from squid.widgets.decor import FloodFill, Notches, Border, NotchedBorder
     from squid.widgets.layout import Stack, HBox
     from squid.widgets.clock import AnalogClock, DigitalClock, Date
 
-    if clear:
-        display_stack = FloodFill(1)
-        framecount = 1
-    else:
-        #create and compose widgets
-        border_width = 1
-        notch_width = 10
-        background = FloodFill(2)
-        digital_clock = DigitalClock(width_percent=55)
-        analog_clock = Border(5, 0, AnalogClock(draw_seconds=not noseconds))
-        hbox = HBox.build(digital_clock, analog_clock, Date())
-        
-        display_stack = Stack.build(
-            background, 
-            Border(border_width*2, 0,
-            NotchedBorder(
-                border_width, 
-                4, 
-                notch_width,
-                Border(border_width, 0, hbox),
-                inner_tone = 1         
-        )))
-    
+    config = builder.load(filename)
+    return run(**config)
 
+#TODO: driver args under driver in config
+def run(interval=1, framecount=1, driver=None, invert=False, noseconds=True, rotate=False, filename=None, display=None, clear=False):
+
+    if clear:
+        root_widget = FloodFill(1)
+        framecount = 1
+    else:      
+        root_widget = builder.build(display)
+    
 
     def load_display_driver(name):
         return importlib.import_module("squid.drivers." + name + ".display")
@@ -82,7 +65,7 @@ def main(
         context.set_line_cap(cairo.LineCap.ROUND)
         context.select_font_face("Futura Lt BT", cairo.FontSlant.NORMAL)
         
-        display_stack.draw(context, surface.get_width(), surface.get_height())
+        root_widget.draw(context, surface.get_width(), surface.get_height())
         display.show(surface)
 
 
@@ -123,5 +106,5 @@ def main(
 
 
 if __name__ == '__main__':
-    plac.call(main)
+    main()
 
