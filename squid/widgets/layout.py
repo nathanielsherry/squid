@@ -65,7 +65,8 @@ class HBox(Container):
             context.save()
             context.translate(x, total_y + y)
             context.rectangle(0, 0, width, height)
-            context.clip()
+            #Temping to do this, but it more often clips text and ruins an otherwise simple layout
+            #context.clip()
             node.used_space = node.child.draw(context, width, height)
             if not node.used_space: raise Exception("Component {} returned None for used space".format(node.child))
             total_y += y + node.used_space[1]
