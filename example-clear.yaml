@@ -1,0 +1,4 @@
+interval: 1
+framecount: 1
+driver: filesystem
+clear: true
