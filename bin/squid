@@ -39,7 +39,7 @@ def main(filename):
     return run(**config)
 
 #TODO: driver args under driver in config
-def run(interval=1, framecount=1, driver=None, invert=False, noseconds=True, rotate=False, filename=None, display=None, clear=False):
+def run(interval=1, framecount=1, driver=None, invert=False, rotate=False, filename=None, display=None, clear=False):
 
     if clear:
         root_widget = FloodFill(1)
