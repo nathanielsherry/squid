@@ -42,6 +42,7 @@ def main(filename):
 def run(interval=1, framecount=1, driver=None, invert=False, rotate=False, widgets=None, clear=False):
 
     if clear:
+        from squid.widgets.decor import FloodFill
         root_widget = FloodFill(1)
         framecount = 1
     else:      
