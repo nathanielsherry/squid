@@ -5,7 +5,7 @@ epd = None
 def init(**kwargs):
     global epd
     epd = driver.EPD()
-    epd.Init_4Gray()
+    epd.init(mode=0)
     epd.Clear(0xFF)
 
 def cairo_to_pil(cairo_surface):
