@@ -50,7 +50,10 @@ class HBox(Container):
             expand_count = len(self._children)
             expand_all = True
         if free_space > 0 and expand_count > 0:
-            expand_space = free_space / (expand_count - 1)
+            if expand_count == 1:
+                expand_space = free_space
+            else:
+                expand_space = free_space / (expand_count - 1)
 
         total_y = 0
         for node in self._children:
