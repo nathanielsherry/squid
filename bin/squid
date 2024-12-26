@@ -39,7 +39,8 @@ def main(filename):
     return run(**config)
 
 #TODO: driver args under driver in config
-def run(interval=1, framecount=1, driver=None, invert=False, rotate=False, widgets=None, clear=False):
+# rotate = [0, 1, 2, 3] for 0, 90, 180, 270 degree rotation
+def run(interval=1, framecount=1, driver=None, invert=False, rotate=0, widgets=None, clear=False):
 
     if clear:
         from squid.widgets.decor import FloodFill
@@ -68,28 +69,36 @@ def run(interval=1, framecount=1, driver=None, invert=False, rotate=False, widge
 
     def draw():
         
-        #create a new drawing context for this surface
+        # create a new drawing context for this surface
         context = cairo.Context(surface)
-        if rotate:
+
+        # rotation
+        landscape = rotation % 2 == 1
+        if not landscape:
             width = surface.get_width()
             height = surface.get_height()
-            context.translate(width/2, height/2)
-            context.rotate(math.pi)
-            context.translate(-width/2, -height/2)
+        else:
+            height = surface.get_width()
+            width = surface.get_height()
+        context.translate(width/2, height/2)
+        context.rotate(rotate*math.pi/2)
+        context.translate(-width/2, -height/2)
+        
+        # drawing & style settings
         context.set_line_cap(cairo.LineCap.ROUND)
         context.select_font_face("Futura Lt BT", cairo.FontSlant.NORMAL)
         
-        root_widget.draw(context, surface.get_width(), surface.get_height())
+        root_widget.draw(context, width, height)
         display.show(surface)
 
 
-    #initialize frame count
+    # initialize frame count
     count = 0
     
-    #load & init display driver
+    # load & init display driver
     display = load_display_driver(driver)
     
-    #init widget settings
+    # init widget settings
     from squid.palettes import init as palette_init
     palette_init(invert=invert)
     
